@@ -94,6 +94,17 @@ dianas-sudoku/
 
 ## 🛠 Historial de versiones
 
+### v1.3.0 (2026-11-07)
+- 🧘 **Modo Zen:** selector de modo en el menú principal (`❤️ Clásico` con 3 vidas vs `🧘 Modo Zen` sin vidas ni Game Over, pura serenidad para Diana).
+- 🏷️ **Indicador Zen en juego:** badge visual en la barra superior y registro especial en la tabla de récords con etiqueta `(ZEN)`.
+
+### v1.2.0 (2026-11-07)
+- 🎨 **Rediseño Zen Moderno y Minimalista:** tipografías Plus Jakarta Sans y Outfit reemplazando el 8-bit retro.
+- 🎛️ **Selector de dificultad integrado:** control segmentado con chips en el menú principal (`🌱 Fácil`, `⚡ Medio`, `🔥 Difícil`).
+- 🔢 **Teclado con contadores restantes en vivo:** dígitos 1–9 con conteo en tiempo real y marca `✓` al completar los 9.
+- 🔦 **Modo Spotlight y botón Borrar dedicado:** iluminación de números coincidentes y botón de borrado ergonómico.
+- 🎵 **Paisaje sonoro suave:** ondas sinusoidales y triangulares cálidas y relajantes.
+
 ### v1.1.0 (2026-11-07)
 - 🏷️ **Versión visible en la UI:** badge en el menú principal y leyenda en el menú de pausa.
 - 💾 **Autoguardado continuo:** cada jugada, pista y deshacer se guardan al instante. Si iOS cierra la web app, Diana recupera la partida exactamente donde estaba con "CONTINUAR PARTIDA".
