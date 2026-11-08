@@ -47,8 +47,19 @@
         <p class="brand-subtitle">Lógica, serenidad y elegancia</p>
       </div>
 
-      <!-- Difficulty Selector (Integrated Segmented Control) -->
+      <!-- Difficulty & Mode Selector Card -->
       <div class="diff-selector-card">
+        
+        <!-- Game Mode Switcher -->
+        <div class="mode-toggle-group" role="group" aria-label="Modo de juego">
+          <button type="button" class="mode-tab active" data-mode="classic" id="mode-tab-classic">
+            ❤️ Clásico
+          </button>
+          <button type="button" class="mode-tab" data-mode="zen" id="mode-tab-zen">
+            🧘 Modo Zen
+          </button>
+        </div>
+
         <div class="diff-selector-label">DIFICULTAD</div>
         <div class="segmented-control" role="group" aria-label="Selecciona la dificultad">
           <button type="button" class="segment-btn diff-chip" data-diff="easy" id="diff-chip-easy">
@@ -62,7 +73,7 @@
           </button>
         </div>
         <div class="diff-desc-pill" id="diff-desc">
-          Equilibrado • 46 casillas vacías
+          Equilibrado • 46 casillas vacías • 3 vidas
         </div>
       </div>
 
@@ -134,10 +145,14 @@
             <span class="hint-icon" id="hint1">💡</span>
             <span class="hint-icon" id="hint2">💡</span>
           </div>
-          <div class="errors-display" title="Vidas restantes">
+          <div class="errors-display" id="errors-display" title="Vidas restantes">
             <span class="heart" id="heart1">❤️</span>
             <span class="heart" id="heart2">❤️</span>
             <span class="heart" id="heart3">❤️</span>
+          </div>
+          <div class="zen-mode-badge hidden" id="game-zen-badge" title="Modo Zen activo">
+            <span class="zen-icon">🧘</span>
+            <span class="zen-text">Zen</span>
           </div>
         </div>
       </header>

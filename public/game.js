@@ -151,6 +151,7 @@ const SFX = {
 // ─── STATE ────────────────────────────────────────────────────────────────────
 const STATE = {
   difficulty: 'medium',
+  gameMode: 'classic', // 'classic' (3 vidas) or 'zen' (sin vidas ni Game Over)
   puzzle: null,        // 9x9 array (0 = empty)
   solution: null,      // 9x9 solution
   board: null,         // player's current board
@@ -174,6 +175,7 @@ function saveGame() {
   if (!STATE.gameActive) return;
   const save = {
     difficulty: STATE.difficulty,
+    gameMode: STATE.gameMode,
     puzzle: STATE.puzzle,
     solution: STATE.solution,
     board: STATE.board,
@@ -195,12 +197,28 @@ function clearSavedGame() {
   localStorage.removeItem(SAVE_KEY);
 }
 
+function applyGameModeUI() {
+  const isZen = STATE.gameMode === 'zen';
+  const errorsEl = document.getElementById('errors-display');
+  const zenBadge = document.getElementById('game-zen-badge');
+  const diffBadge = document.getElementById('game-diff-badge');
+
+  if (errorsEl) errorsEl.classList.toggle('hidden', isZen);
+  if (zenBadge) zenBadge.classList.toggle('hidden', !isZen);
+  if (diffBadge) {
+    diffBadge.textContent = isZen
+      ? `${diffLabel(STATE.difficulty)} • ZEN`
+      : diffLabel(STATE.difficulty);
+  }
+}
+
 function loadSavedGame() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return false;
     const save = JSON.parse(raw);
     STATE.difficulty = save.difficulty;
+    STATE.gameMode = save.gameMode || 'classic';
     STATE.puzzle = save.puzzle;
     STATE.solution = save.solution;
     STATE.board = save.board;
@@ -229,7 +247,8 @@ function loadSavedGame() {
     });
     document.getElementById('hints-left').textContent = STATE.hintsLeft;
     document.getElementById('btn-hint').disabled = STATE.hintsLeft <= 0;
-    document.getElementById('game-diff-badge').textContent = diffLabel(STATE.difficulty);
+
+    applyGameModeUI();
 
     hideOverlays();
     buildGrid();
@@ -612,6 +631,12 @@ function applyNumber(num) {
 
 function registerError(row, col) {
   STATE.errors++;
+
+  // En Modo Zen no hay pérdida de vidas ni Game Over: pura calma
+  if (STATE.gameMode === 'zen') {
+    return;
+  }
+
   const hearts = ['heart1', 'heart2', 'heart3'];
   const heartIdx = STATE.errors - 1;
   if (heartIdx < 3) {
@@ -790,6 +815,10 @@ function checkVictory() {
 
 function calcScore() {
   const baseScore = { easy: 500, medium: 1000, hard: 2000 }[STATE.difficulty] || 1000;
+  if (STATE.gameMode === 'zen') {
+    // Modo Zen: calma absoluta, bonificación por resolución pacífica sin penalizaciones
+    return baseScore + 250;
+  }
   const timePenalty = Math.min(STATE.timerSeconds * 0.5, baseScore * 0.5);
   const errorPenalty = STATE.errors * 100;
   const hintPenalty = STATE.hintsUsed * 150;
@@ -800,12 +829,16 @@ function triggerVictory() {
   SFX.victory();
   clearSavedGame();
   updateContinueButton();
+
+  const isZen = STATE.gameMode === 'zen';
   const score = calcScore();
-  const stars = STATE.errors === 0 ? '⭐⭐⭐' : STATE.errors <= 1 ? '⭐⭐' : '⭐';
+  const stars = isZen ? '⭐⭐⭐' : (STATE.errors === 0 ? '⭐⭐⭐' : STATE.errors <= 1 ? '⭐⭐' : '⭐');
 
   document.getElementById('victory-stars').textContent = stars;
   document.getElementById('v-time').textContent = formatTime(STATE.timerSeconds);
-  document.getElementById('v-diff').textContent = diffLabel(STATE.difficulty);
+  document.getElementById('v-diff').textContent = isZen
+    ? `${diffLabel(STATE.difficulty)} (ZEN)`
+    : diffLabel(STATE.difficulty);
   document.getElementById('v-errors').textContent = STATE.errors;
   document.getElementById('v-hints').textContent = STATE.hintsUsed;
   document.getElementById('v-score').textContent = score;
@@ -832,8 +865,9 @@ function diffLabel(d) {
 // ─── SCORES ───────────────────────────────────────────────────────────────────
 function saveScore(score) {
   const scores = loadScores();
+  const isZen = STATE.gameMode === 'zen';
   scores.unshift({
-    difficulty: diffLabel(STATE.difficulty),
+    difficulty: `${diffLabel(STATE.difficulty)}${isZen ? ' (ZEN)' : ''}`,
     time: formatTime(STATE.timerSeconds),
     errors: STATE.errors,
     score,
@@ -859,7 +893,7 @@ function renderScores() {
   tbody.innerHTML = scores.map((s, i) =>
     `<tr>
       <td>${i + 1}</td>
-      <td><span class="diff-tag diff-${s.difficulty.toLowerCase()}">${s.difficulty}</span></td>
+      <td><span class="diff-tag diff-${s.difficulty.toLowerCase().replace(/[^a-z]/g, '')}">${s.difficulty}</span></td>
       <td>${s.time}</td>
       <td>${s.errors}</td>
       <td class="score-pts">${s.score ?? 0}</td>
@@ -868,8 +902,9 @@ function renderScores() {
 }
 
 // ─── START GAME ───────────────────────────────────────────────────────────────
-function startGame(difficulty = STATE.difficulty) {
+function startGame(difficulty = STATE.difficulty, mode = STATE.gameMode) {
   STATE.difficulty = difficulty;
+  STATE.gameMode = mode;
 
   clearSavedGame();
   updateContinueButton();
@@ -903,7 +938,8 @@ function startGame(difficulty = STATE.difficulty) {
   });
   document.getElementById('hints-left').textContent = 2;
   document.getElementById('btn-hint').disabled = false;
-  document.getElementById('game-diff-badge').textContent = diffLabel(difficulty);
+
+  applyGameModeUI();
 
   hideOverlays();
   buildGrid();
@@ -977,20 +1013,45 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', () => saveGame());
 
-// ─── DIFFICULTY METADATA ──────────────────────────────────────────────────────
+// ─── DIFFICULTY & MODE METADATA ───────────────────────────────────────────────
 const diffDescriptions = {
-  easy: 'Tranquilo • 36 casillas vacías • 2 pistas',
-  medium: 'Equilibrado • 46 casillas vacías • 2 pistas',
-  hard: 'Desafiante • 56 casillas vacías • 2 pistas',
+  easy: {
+    classic: 'Tranquilo • 36 casillas vacías • 3 vidas',
+    zen: 'Tranquilo • 36 casillas vacías • Sin vidas ni estrés'
+  },
+  medium: {
+    classic: 'Equilibrado • 46 casillas vacías • 3 vidas',
+    zen: 'Equilibrado • 46 casillas vacías • Sin vidas ni estrés'
+  },
+  hard: {
+    classic: 'Desafiante • 56 casillas vacías • 3 vidas',
+    zen: 'Desafiante • 56 casillas vacías • Sin vidas ni estrés'
+  }
 };
+
+function updateDiffDesc() {
+  const descEl = document.getElementById('diff-desc');
+  if (descEl) {
+    const d = STATE.difficulty || 'medium';
+    const m = STATE.gameMode || 'classic';
+    descEl.textContent = diffDescriptions[d]?.[m] || '';
+  }
+}
 
 function selectDifficulty(diff) {
   STATE.difficulty = diff;
   document.querySelectorAll('.diff-chip').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.diff === diff);
   });
-  const descEl = document.getElementById('diff-desc');
-  if (descEl) descEl.textContent = diffDescriptions[diff] || '';
+  updateDiffDesc();
+}
+
+function selectGameMode(mode) {
+  STATE.gameMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.mode === mode);
+  });
+  updateDiffDesc();
 }
 
 // ─── EVENT LISTENERS ──────────────────────────────────────────────────────────
@@ -1013,6 +1074,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Check for saved game on load
   updateContinueButton();
 
+  // Mode Switcher (Clásico vs Zen)
+  document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      selectGameMode(tab.dataset.mode);
+    });
+  });
+
   // Menu Difficulty Segmented Control
   document.querySelectorAll('.diff-chip').forEach(chip => {
     chip.addEventListener('click', () => {
@@ -1020,13 +1088,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Initial description
+  updateDiffDesc();
+
   // Menu Buttons
   document.getElementById('btn-continue').addEventListener('click', () => {
     loadSavedGame();
   });
 
   document.getElementById('btn-start').addEventListener('click', () => {
-    startGame(STATE.difficulty);
+    startGame(STATE.difficulty, STATE.gameMode);
   });
 
   document.getElementById('btn-scores').addEventListener('click', () => {
