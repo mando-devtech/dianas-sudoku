@@ -7,26 +7,29 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Sudoku" />
-  <meta name="theme-color" content="#0f1117" id="meta-theme-color" />
-  <meta name="description" content="Juego de Sudoku estilo 8-bit por Diana. Disfruta en tu celular como una app." />
+  <meta name="theme-color" content="#12151e" id="meta-theme-color" />
+  <meta name="description" content="Diana's Sudoku - Experiencia Zen moderna, táctil y minimalista." />
 
   <title>Diana's Sudoku</title>
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json" />
 
-  <!-- Apple Touch Icon (iPhone home screen) -->
+  <!-- Apple Touch Icon -->
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
 
+  <!-- Fonts: Plus Jakarta Sans & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
   <!-- Styles -->
   <link rel="stylesheet" href="style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-  <!-- ── THEME TOGGLE BUTTON ── -->
+  <!-- THEME TOGGLE BUTTON -->
   <button id="btn-theme" class="theme-toggle" title="Cambiar tema" aria-label="Cambiar modo oscuro/claro">
     <span class="theme-icon" id="theme-icon">💡</span>
   </button>
@@ -36,66 +39,77 @@
   <!-- MAIN MENU -->
   <div id="screen-menu" class="screen active">
     <div class="menu-container">
-      <div class="title-block">
-        <div class="pixel-logo">
-          <span class="logo-main">SUDOKU</span>
-          <span class="logo-sub">Diana's Edition</span>
+      
+      <!-- Brand & Header -->
+      <div class="brand-hero">
+        <div class="brand-badge">✨ DIANA'S EDITION</div>
+        <h1 class="brand-title">SUDOKU</h1>
+        <p class="brand-subtitle">Lógica, serenidad y elegancia</p>
+      </div>
+
+      <!-- Difficulty Selector (Integrated Segmented Control) -->
+      <div class="diff-selector-card">
+        <div class="diff-selector-label">DIFICULTAD</div>
+        <div class="segmented-control" role="group" aria-label="Selecciona la dificultad">
+          <button type="button" class="segment-btn diff-chip" data-diff="easy" id="diff-chip-easy">
+            🌱 Fácil
+          </button>
+          <button type="button" class="segment-btn diff-chip active" data-diff="medium" id="diff-chip-medium">
+            ⚡ Medio
+          </button>
+          <button type="button" class="segment-btn diff-chip" data-diff="hard" id="diff-chip-hard">
+            🔥 Difícil
+          </button>
         </div>
-        <div class="pixel-deco">
-          <div class="deco-row">
-            <span class="deco-cell filled"></span>
-            <span class="deco-cell"></span>
-            <span class="deco-cell filled"></span>
-            <span class="deco-cell"></span>
-            <span class="deco-cell filled"></span>
-          </div>
+        <div class="diff-desc-pill" id="diff-desc">
+          Equilibrado • 46 casillas vacías
         </div>
       </div>
 
+      <!-- Main Navigation Actions -->
       <nav class="menu-nav" id="main-menu-nav">
-        <button class="menu-btn continue-btn hidden" id="btn-continue" data-sound="select">⏵ CONTINUAR PARTIDA</button>
-        <button class="menu-btn" id="btn-start" data-sound="select">▶ NUEVA PARTIDA</button>
-        <button class="menu-btn" id="btn-difficulty" data-sound="select">⚙ DIFICULTAD</button>
-        <button class="menu-btn" id="btn-scores" data-sound="select">🏆 PUNTAJES</button>
-        <button class="menu-btn" id="btn-exit" data-sound="select">✖ SALIR</button>
+        <button class="menu-btn continue-btn hidden" id="btn-continue" data-sound="select">
+          <span class="btn-icon">⏵</span> CONTINUAR PARTIDA
+        </button>
+        <button class="menu-btn primary-btn" id="btn-start" data-sound="select">
+          <span class="btn-icon">▶</span> NUEVA PARTIDA
+        </button>
+        <button class="menu-btn secondary-btn" id="btn-scores" data-sound="select">
+          <span class="btn-icon">🏆</span> PUNTAJES
+        </button>
       </nav>
 
+      <!-- Footer Info -->
       <div class="menu-footer">
-        <span id="selected-diff-label">Dificultad: <span id="diff-display">MEDIO</span></span>
+        <span class="version-badge" id="version-badge" title="Versión instalada">v—</span>
       </div>
-      <div class="version-badge" id="version-badge" title="Versión instalada">v—</div>
-    </div>
-  </div>
-
-  <!-- DIFFICULTY SELECT -->
-  <div id="screen-difficulty" class="screen">
-    <div class="menu-container">
-      <h2 class="screen-title">DIFICULTAD</h2>
-      <nav class="menu-nav">
-        <button class="menu-btn diff-btn active-diff" id="diff-easy" data-diff="easy" data-sound="select">🟢 FÁCIL</button>
-        <button class="menu-btn diff-btn" id="diff-medium" data-diff="medium" data-sound="select">🟡 MEDIO</button>
-        <button class="menu-btn diff-btn" id="diff-hard" data-diff="hard" data-sound="select">🔴 DIFÍCIL</button>
-        <button class="menu-btn back-btn" id="btn-diff-back" data-sound="back">← VOLVER</button>
-      </nav>
-      <div class="diff-info" id="diff-info-text">36 celdas vacías • 2 pistas disponibles</div>
     </div>
   </div>
 
   <!-- SCORES SCREEN -->
   <div id="screen-scores" class="screen">
-    <div class="menu-container">
-      <h2 class="screen-title">🏆 PUNTAJES</h2>
-      <div class="scores-table-wrap">
-        <table class="scores-table">
-          <thead>
-            <tr><th>#</th><th>DIFICULTAD</th><th>TIEMPO</th><th>ERR</th><th>PUNTOS</th></tr>
-          </thead>
-          <tbody id="scores-body">
-            <tr><td colspan="5" class="no-scores">Sin partidas aún</td></tr>
-          </tbody>
-        </table>
+    <div class="menu-container scores-container">
+      <div class="screen-header">
+        <h2 class="screen-title">🏆 MEJORES TIEMPOS</h2>
+        <p class="screen-subtitle">Tus récords personales guardados</p>
       </div>
-      <button class="menu-btn back-btn" id="btn-scores-back" data-sound="back" style="margin-top:1.5rem;">← VOLVER</button>
+
+      <div class="scores-card">
+        <div class="scores-table-wrap">
+          <table class="scores-table">
+            <thead>
+              <tr><th>#</th><th>DIFICULTAD</th><th>TIEMPO</th><th>ERR</th><th>PUNTOS</th></tr>
+            </thead>
+            <tbody id="scores-body">
+              <tr><td colspan="5" class="no-scores">Sin partidas registradas</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <button class="menu-btn secondary-btn back-btn" id="btn-scores-back" data-sound="back">
+        ← VOLVER AL MENÚ
+      </button>
     </div>
   </div>
 
@@ -104,100 +118,174 @@
     <div class="game-wrapper">
 
       <!-- TOP BAR -->
-      <div class="game-topbar">
+      <header class="game-topbar">
         <div class="topbar-left">
-          <button class="icon-btn" id="btn-pause" title="Pausa" data-sound="click">⏸</button>
-          <button class="icon-btn" id="btn-undo" title="Deshacer" data-sound="click">↩</button>
+          <button class="icon-btn" id="btn-game-back" title="Menú principal" data-sound="back">‹</button>
+          <button class="icon-btn" id="btn-pause" title="Pausar juego" data-sound="click">⏸</button>
         </div>
+
         <div class="topbar-center">
           <div class="timer-display" id="timer-display">00:00</div>
+          <div class="diff-badge" id="game-diff-badge">MEDIO</div>
         </div>
+
         <div class="topbar-right">
-          <div class="hints-display">
+          <div class="hints-display" title="Pistas disponibles">
             <span class="hint-icon" id="hint1">💡</span>
             <span class="hint-icon" id="hint2">💡</span>
           </div>
-          <div class="errors-display">
+          <div class="errors-display" title="Vidas restantes">
             <span class="heart" id="heart1">❤️</span>
             <span class="heart" id="heart2">❤️</span>
             <span class="heart" id="heart3">❤️</span>
           </div>
         </div>
-      </div>
-
-      <!-- DIFFICULTY BADGE -->
-      <div class="diff-badge" id="game-diff-badge">MEDIO</div>
+      </header>
 
       <!-- SUDOKU GRID -->
-      <div class="grid-container">
-        <div class="sudoku-grid" id="sudoku-grid"></div>
-      </div>
+      <main class="grid-container">
+        <div class="sudoku-grid" id="sudoku-grid" role="grid" aria-label="Tablero de Sudoku"></div>
+      </main>
 
-      <!-- NUMBER PANEL -->
-      <div class="number-panel" id="number-panel">
-        <button class="num-btn" data-num="1">1</button>
-        <button class="num-btn" data-num="2">2</button>
-        <button class="num-btn" data-num="3">3</button>
-        <button class="num-btn" data-num="4">4</button>
-        <button class="num-btn" data-num="5">5</button>
-        <button class="num-btn" data-num="6">6</button>
-        <button class="num-btn" data-num="7">7</button>
-        <button class="num-btn" data-num="8">8</button>
-        <button class="num-btn" data-num="9">9</button>
-        <button class="num-btn erase-btn" data-num="0">⌫</button>
-      </div>
+      <!-- TOOLS BAR -->
+      <section class="game-tools" aria-label="Herramientas del juego">
+        <button class="tool-btn" id="btn-undo" title="Deshacer último movimiento" data-sound="click">
+          <span class="tool-icon">↩</span>
+          <span class="tool-label">Deshacer</span>
+        </button>
+        <button class="tool-btn" id="btn-erase" title="Borrar casilla seleccionada" data-sound="click">
+          <span class="tool-icon">⌫</span>
+          <span class="tool-label">Borrar</span>
+        </button>
+        <button class="tool-btn" id="btn-hint" title="Revelar pista en casilla" data-sound="hint">
+          <span class="tool-icon">💡</span>
+          <span class="tool-label">Pista (<b id="hints-left">2</b>)</span>
+        </button>
+      </section>
 
-      <!-- ACTION ROW: NOTES & HINT -->
-      <div class="action-row">
-        <button class="notes-btn" id="btn-notes" title="Modo Notas (Tecla N)" data-sound="click">✏️ NOTAS: <span id="notes-state">OFF</span></button>
-        <button class="hint-btn" id="btn-hint" data-sound="hint">💡 PISTA (<span id="hints-left">2</span>)</button>
-      </div>
+      <!-- NUMBER KEYPAD -->
+      <section class="number-panel" id="number-panel" aria-label="Teclado numérico">
+        <button class="num-btn" data-num="1" aria-label="Número 1">
+          <span class="num-digit">1</span>
+          <span class="num-count" id="count-1">9</span>
+        </button>
+        <button class="num-btn" data-num="2" aria-label="Número 2">
+          <span class="num-digit">2</span>
+          <span class="num-count" id="count-2">9</span>
+        </button>
+        <button class="num-btn" data-num="3" aria-label="Número 3">
+          <span class="num-digit">3</span>
+          <span class="num-count" id="count-3">9</span>
+        </button>
+        <button class="num-btn" data-num="4" aria-label="Número 4">
+          <span class="num-digit">4</span>
+          <span class="num-count" id="count-4">9</span>
+        </button>
+        <button class="num-btn" data-num="5" aria-label="Número 5">
+          <span class="num-digit">5</span>
+          <span class="num-count" id="count-5">9</span>
+        </button>
+        <button class="num-btn" data-num="6" aria-label="Número 6">
+          <span class="num-digit">6</span>
+          <span class="num-count" id="count-6">9</span>
+        </button>
+        <button class="num-btn" data-num="7" aria-label="Número 7">
+          <span class="num-digit">7</span>
+          <span class="num-count" id="count-7">9</span>
+        </button>
+        <button class="num-btn" data-num="8" aria-label="Número 8">
+          <span class="num-digit">8</span>
+          <span class="num-count" id="count-8">9</span>
+        </button>
+        <button class="num-btn" data-num="9" aria-label="Número 9">
+          <span class="num-digit">9</span>
+          <span class="num-count" id="count-9">9</span>
+        </button>
+      </section>
+
     </div>
   </div>
 
   <!-- PAUSE OVERLAY -->
-  <div id="overlay-pause" class="overlay hidden">
-    <div class="overlay-box">
-      <h2 class="overlay-title pixel">⏸ PAUSA</h2>
-      <button class="menu-btn" id="btn-resume" data-sound="select">▶ CONTINUAR</button>
-      <button class="menu-btn" id="btn-restart" data-sound="select">↺ REINICIAR</button>
-      <button class="menu-btn save-menu-btn" id="btn-menu-from-pause" data-sound="back">💾 GUARDAR Y SALIR</button>
+  <div id="overlay-pause" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+    <div class="overlay-card">
+      <div class="overlay-icon">⏸</div>
+      <h2 class="overlay-title" id="pause-title">Partida en Pausa</h2>
+      <p class="overlay-subtitle">Tómate un respiro, tu progreso está seguro.</p>
+      
+      <div class="overlay-actions">
+        <button class="menu-btn primary-btn" id="btn-resume" data-sound="select">▶ CONTINUAR</button>
+        <button class="menu-btn secondary-btn" id="btn-restart" data-sound="select">↺ REINICIAR</button>
+        <button class="menu-btn ghost-btn" id="btn-menu-from-pause" data-sound="back">💾 GUARDAR Y SALIR</button>
+      </div>
+
       <div class="pause-version" id="pause-version">v—</div>
     </div>
   </div>
 
   <!-- VICTORY OVERLAY -->
-  <div id="overlay-victory" class="overlay hidden">
-    <div class="overlay-box victory-box">
+  <div id="overlay-victory" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="victory-title">
+    <div class="overlay-card victory-card">
       <div class="victory-stars" id="victory-stars">⭐⭐⭐</div>
-      <h2 class="overlay-title pixel">¡COMPLETADO!</h2>
+      <h2 class="overlay-title celebration-title" id="victory-title">¡Brillante!</h2>
+      <p class="overlay-subtitle">Has completado el Sudoku con éxito.</p>
+
       <div class="summary-grid">
-        <div class="summary-item"><span class="sum-label">TIEMPO</span><span class="sum-value" id="v-time">--:--</span></div>
-        <div class="summary-item"><span class="sum-label">DIFICULTAD</span><span class="sum-value" id="v-diff">--</span></div>
-        <div class="summary-item"><span class="sum-label">ERRORES</span><span class="sum-value" id="v-errors">0</span></div>
-        <div class="summary-item"><span class="sum-label">PISTAS</span><span class="sum-value" id="v-hints">0</span></div>
-        <div class="summary-item"><span class="sum-label">PUNTOS</span><span class="sum-value" id="v-score">0</span></div>
+        <div class="summary-item">
+          <span class="sum-label">TIEMPO</span>
+          <span class="sum-value" id="v-time">--:--</span>
+        </div>
+        <div class="summary-item">
+          <span class="sum-label">DIFICULTAD</span>
+          <span class="sum-value" id="v-diff">--</span>
+        </div>
+        <div class="summary-item">
+          <span class="sum-label">ERRORES</span>
+          <span class="sum-value" id="v-errors">0</span>
+        </div>
+        <div class="summary-item">
+          <span class="sum-label">PISTAS</span>
+          <span class="sum-value" id="v-hints">0</span>
+        </div>
+        <div class="summary-item full-width">
+          <span class="sum-label">PUNTUACIÓN FINAL</span>
+          <span class="sum-value highlight" id="v-score">0</span>
+        </div>
       </div>
-      <button class="menu-btn" id="btn-play-again" data-sound="select">▶ JUGAR NUEVO</button>
-      <button class="menu-btn" id="btn-menu-victory" data-sound="back">⌂ MENÚ</button>
+
+      <div class="overlay-actions">
+        <button class="menu-btn primary-btn" id="btn-play-again" data-sound="select">▶ JUGAR NUEVO</button>
+        <button class="menu-btn secondary-btn" id="btn-menu-victory" data-sound="back">⌂ MENÚ PRINCIPAL</button>
+      </div>
     </div>
   </div>
 
   <!-- GAME OVER OVERLAY -->
-  <div id="overlay-gameover" class="overlay hidden">
-    <div class="overlay-box gameover-box">
-      <div class="go-pixel-art">
-        <div class="go-skull">💀</div>
-      </div>
-      <h2 class="overlay-title pixel red-text">GAME OVER</h2>
-      <p class="go-subtitle">3 errores cometidos</p>
+  <div id="overlay-gameover" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="gameover-title">
+    <div class="overlay-card gameover-card">
+      <div class="overlay-icon red-icon">💔</div>
+      <h2 class="overlay-title red-text" id="gameover-title">Sin Vidas</h2>
+      <p class="overlay-subtitle">Has cometido 3 errores. ¡La práctica hace al maestro!</p>
+
       <div class="summary-grid">
-        <div class="summary-item"><span class="sum-label">TIEMPO</span><span class="sum-value" id="go-time">--:--</span></div>
-        <div class="summary-item"><span class="sum-label">DIFICULTAD</span><span class="sum-value" id="go-diff">--</span></div>
-        <div class="summary-item"><span class="sum-label">ERRORES</span><span class="sum-value" id="go-errors">3</span></div>
+        <div class="summary-item">
+          <span class="sum-label">TIEMPO</span>
+          <span class="sum-value" id="go-time">--:--</span>
+        </div>
+        <div class="summary-item">
+          <span class="sum-label">DIFICULTAD</span>
+          <span class="sum-value" id="go-diff">--</span>
+        </div>
+        <div class="summary-item">
+          <span class="sum-label">ERRORES</span>
+          <span class="sum-value" id="go-errors">3</span>
+        </div>
       </div>
-      <button class="menu-btn" id="btn-retry" data-sound="select">↺ REINTENTAR</button>
-      <button class="menu-btn" id="btn-menu-gameover" data-sound="back">⌂ MENÚ</button>
+
+      <div class="overlay-actions">
+        <button class="menu-btn primary-btn" id="btn-retry" data-sound="select">↺ REINTENTAR</button>
+        <button class="menu-btn secondary-btn" id="btn-menu-gameover" data-sound="back">⌂ MENÚ PRINCIPAL</button>
+      </div>
     </div>
   </div>
 

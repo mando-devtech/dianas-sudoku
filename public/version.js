@@ -2,4 +2,3 @@
    Source of truth: package.json "version". */
 self.APP_VERSION = '1.1.0';
 self.APP_BUILD_DATE = '2026-11-07';
-

@@ -14,7 +14,7 @@ const ASSETS = [
   '/version.js',
   '/manifest.json',
   '/apple-touch-icon.png',
-  'https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap'
+  'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap'
 ];
 
 self.addEventListener('install', (event) => {

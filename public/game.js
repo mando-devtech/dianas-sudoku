@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════
-   Diana's Sudoku - Game Logic (game.js)
-   PWA Ready | Dark & Light Mode
+   Diana's Sudoku - Modern Zen Game Logic (game.js)
+   PWA Ready | Dark & Light Mode | High-Performance UX
    ═══════════════════════════════════════════════ */
 
 'use strict';
@@ -36,7 +36,7 @@ const THEME = {
     // Update meta theme-color for browser chrome
     const metaColor = document.getElementById('meta-theme-color');
     if (metaColor) {
-      metaColor.content = theme === 'dark' ? '#0f1117' : '#f0f2f8';
+      metaColor.content = theme === 'dark' ? '#12151e' : '#f8fafc';
     }
   },
 
@@ -45,7 +45,7 @@ const THEME = {
   }
 };
 
-// ─── AUDIO ENGINE ────────────────────────────────────────────────────────────
+// ─── AUDIO ENGINE (Warm Zen Soundscapes) ──────────────────────────────────────
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
@@ -60,8 +60,8 @@ function getAudioCtx() {
 function playTone(opts = {}) {
   try {
     const ctx = getAudioCtx();
-    const { type = 'square', freq = 440, freq2 = null, duration = 0.15,
-            gain = 0.18, gainEnd = 0, delay = 0, detune = 0 } = opts;
+    const { type = 'sine', freq = 440, freq2 = null, duration = 0.15,
+            gain = 0.16, gainEnd = 0, delay = 0, detune = 0 } = opts;
 
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
@@ -77,74 +77,73 @@ function playTone(opts = {}) {
     }
 
     gainNode.gain.setValueAtTime(0.001, ctx.currentTime + delay);
-    gainNode.gain.linearRampToValueAtTime(gain, ctx.currentTime + delay + 0.01);
+    gainNode.gain.linearRampToValueAtTime(gain, ctx.currentTime + delay + 0.015);
     gainNode.gain.exponentialRampToValueAtTime(
       Math.max(gainEnd, 0.001), ctx.currentTime + delay + duration
     );
 
     osc.start(ctx.currentTime + delay);
-    osc.stop(ctx.currentTime + delay + duration + 0.02);
-  } catch (e) {/* silently ignore */ }
+    osc.stop(ctx.currentTime + delay + duration + 0.03);
+  } catch (e) { /* ignore audio errors */ }
 }
 
 const SFX = {
   select: () => {
-    playTone({ type: 'square', freq: 440, duration: 0.08, gain: 0.15 });
-    playTone({ type: 'square', freq: 660, duration: 0.08, gain: 0.12, delay: 0.07 });
+    playTone({ type: 'sine', freq: 480, duration: 0.08, gain: 0.14 });
+    playTone({ type: 'triangle', freq: 640, duration: 0.1, gain: 0.12, delay: 0.06 });
   },
   back: () => {
-    playTone({ type: 'square', freq: 330, duration: 0.08, gain: 0.12 });
-    playTone({ type: 'square', freq: 220, duration: 0.1, gain: 0.1, delay: 0.07 });
+    playTone({ type: 'triangle', freq: 360, duration: 0.08, gain: 0.12 });
+    playTone({ type: 'sine', freq: 260, duration: 0.1, gain: 0.1, delay: 0.06 });
   },
   click: () => {
-    playTone({ type: 'square', freq: 520, duration: 0.06, gain: 0.12 });
+    playTone({ type: 'sine', freq: 520, duration: 0.05, gain: 0.1 });
   },
   correct: () => {
-    // Satisfying ascending chime
-    playTone({ type: 'square', freq: 523, duration: 0.1, gain: 0.18 });
-    playTone({ type: 'square', freq: 659, duration: 0.1, gain: 0.15, delay: 0.1 });
-    playTone({ type: 'square', freq: 784, duration: 0.12, gain: 0.12, delay: 0.2 });
+    // Gentle melodic triad
+    playTone({ type: 'sine', freq: 523.25, duration: 0.12, gain: 0.16 });        // C5
+    playTone({ type: 'sine', freq: 659.25, duration: 0.14, gain: 0.14, delay: 0.08 }); // E5
+    playTone({ type: 'triangle', freq: 783.99, duration: 0.18, gain: 0.12, delay: 0.16 }); // G5
   },
   error: () => {
-    // Unsatisfying buzz
-    playTone({ type: 'sawtooth', freq: 220, freq2: 110, duration: 0.25, gain: 0.2 });
-    playTone({ type: 'sawtooth', freq: 180, duration: 0.15, gain: 0.15, delay: 0.15 });
+    // Soft low chime (non-punitive)
+    playTone({ type: 'triangle', freq: 240, freq2: 180, duration: 0.22, gain: 0.18 });
   },
   hint: () => {
-    playTone({ type: 'triangle', freq: 880, duration: 0.08, gain: 0.15 });
-    playTone({ type: 'triangle', freq: 1109, duration: 0.1, gain: 0.12, delay: 0.09 });
-    playTone({ type: 'triangle', freq: 1319, duration: 0.12, gain: 0.1, delay: 0.18 });
+    playTone({ type: 'sine', freq: 659.25, duration: 0.1, gain: 0.14 });
+    playTone({ type: 'sine', freq: 880, duration: 0.12, gain: 0.12, delay: 0.08 });
+    playTone({ type: 'triangle', freq: 1046.5, duration: 0.16, gain: 0.1, delay: 0.16 });
   },
   lineComplete: () => {
-    // Short fanfare
-    [0, 0.07, 0.14, 0.21].forEach((d, i) => {
-      playTone({ type: 'square', freq: [523, 659, 784, 1047][i], duration: 0.1, gain: 0.14, delay: d });
+    // Zen breeze completion chord
+    [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+      playTone({ type: 'sine', freq: f, duration: 0.18, gain: 0.12, delay: i * 0.06 });
     });
   },
   victory: () => {
-    const melody = [523, 659, 784, 1047, 784, 1047, 1319];
+    const melody = [523.25, 659.25, 783.99, 880, 1046.5, 1318.5];
     melody.forEach((f, i) => {
-      playTone({ type: 'square', freq: f, duration: 0.14, gain: 0.15, delay: i * 0.13 });
+      playTone({ type: 'sine', freq: f, duration: 0.2, gain: 0.15, delay: i * 0.11 });
     });
   },
   gameOver: () => {
-    [440, 370, 311, 220].forEach((f, i) => {
-      playTone({ type: 'sawtooth', freq: f, duration: 0.22, gain: 0.2, delay: i * 0.2 });
+    [392, 349.23, 311.13, 261.63].forEach((f, i) => {
+      playTone({ type: 'triangle', freq: f, duration: 0.25, gain: 0.16, delay: i * 0.16 });
     });
   },
   undo: () => {
-    playTone({ type: 'triangle', freq: 660, freq2: 440, duration: 0.15, gain: 0.13 });
+    playTone({ type: 'sine', freq: 587.33, freq2: 440, duration: 0.12, gain: 0.12 });
   },
   pause: () => {
-    playTone({ type: 'square', freq: 440, duration: 0.07, gain: 0.12 });
-    playTone({ type: 'square', freq: 440, duration: 0.07, gain: 0.12, delay: 0.1 });
+    playTone({ type: 'sine', freq: 440, duration: 0.06, gain: 0.12 });
+    playTone({ type: 'sine', freq: 440, duration: 0.06, gain: 0.12, delay: 0.08 });
   },
   erase: () => {
-    playTone({ type: 'square', freq: 200, duration: 0.08, gain: 0.1 });
+    playTone({ type: 'triangle', freq: 260, duration: 0.08, gain: 0.1 });
   },
   boxComplete: () => {
-    [659, 784, 880, 1047, 880, 1047].forEach((f, i) => {
-      playTone({ type: 'square', freq: f, duration: 0.1, gain: 0.13, delay: i * 0.09 });
+    [659.25, 783.99, 987.77, 1318.51].forEach((f, i) => {
+      playTone({ type: 'sine', freq: f, duration: 0.16, gain: 0.13, delay: i * 0.08 });
     });
   },
 };
@@ -153,26 +152,20 @@ const SFX = {
 const STATE = {
   difficulty: 'medium',
   puzzle: null,        // 9x9 array (0 = empty)
-  solution: null,      // 9x9 answer
+  solution: null,      // 9x9 solution
   board: null,         // player's current board
   given: null,         // bool matrix of pre-filled cells
-  notes: null,         // 9x9 matrix of candidate number arrays
-  notesMode: false,    // whether pencil/notes mode is active
   selected: null,      // { row, col }
-  selectedValue: 0,    // value of selected cell (for same-number highlight)
+  selectedValue: 0,    // value of selected cell (for Spotlight highlight)
   errors: 0,
   hintsLeft: 2,
   hintsUsed: 0,
-  history: [],         // stack of actions
+  history: [],         // stack of moves
   timerSeconds: 0,
   timerInterval: null,
   paused: false,
   gameActive: false,
 };
-
-function createEmptyNotes() {
-  return Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => []));
-}
 
 // ─── SAVED GAME ───────────────────────────────────────────────────────────────
 const SAVE_KEY = 'sudoku_saved_game';
@@ -185,7 +178,6 @@ function saveGame() {
     solution: STATE.solution,
     board: STATE.board,
     given: STATE.given,
-    notes: STATE.notes,
     errors: STATE.errors,
     hintsLeft: STATE.hintsLeft,
     hintsUsed: STATE.hintsUsed,
@@ -213,8 +205,6 @@ function loadSavedGame() {
     STATE.solution = save.solution;
     STATE.board = save.board;
     STATE.given = save.given;
-    STATE.notes = save.notes || createEmptyNotes();
-    STATE.notesMode = false;
     STATE.errors = save.errors;
     STATE.hintsLeft = save.hintsLeft;
     STATE.hintsUsed = save.hintsUsed;
@@ -228,17 +218,18 @@ function loadSavedGame() {
     // Reset UI
     ['heart1','heart2','heart3'].forEach((id, i) => {
       const el = document.getElementById(id);
-      el.classList.toggle('lost', i < STATE.errors);
-      el.style.animation = '';
+      if (el) {
+        el.classList.toggle('lost', i < STATE.errors);
+        el.style.animation = '';
+      }
     });
     ['hint1','hint2'].forEach((id, i) => {
       const el = document.getElementById(id);
-      el.classList.toggle('used', i < STATE.hintsUsed);
+      if (el) el.classList.toggle('used', i < STATE.hintsUsed);
     });
     document.getElementById('hints-left').textContent = STATE.hintsLeft;
     document.getElementById('btn-hint').disabled = STATE.hintsLeft <= 0;
     document.getElementById('game-diff-badge').textContent = diffLabel(STATE.difficulty);
-    updateNotesUI();
 
     hideOverlays();
     buildGrid();
@@ -264,7 +255,7 @@ function updateContinueButton() {
   }
 }
 
-// ─── SUDOKU GENERATOR (client-side fallback) ──────────────────────────────────
+// ─── SUDOKU GENERATOR ─────────────────────────────────────────────────────────
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -323,7 +314,7 @@ function countSolutions(board, limit = 2) {
     if (bestCandidates && bestCandidates.length === 1) break;
   }
 
-  if (bestRow === -1) return 1; // Fully solved
+  if (bestRow === -1) return 1;
 
   let count = 0;
   for (const num of bestCandidates) {
@@ -385,7 +376,6 @@ function startTimer() {
     if (!STATE.paused) {
       STATE.timerSeconds++;
       updateTimerDisplay();
-      // Persist elapsed time periodically so a killed web app loses at most a few seconds.
       if (STATE.timerSeconds % 5 === 0) saveGame();
     }
   }, 1000);
@@ -405,7 +395,8 @@ function formatTime(secs) {
 }
 
 function updateTimerDisplay() {
-  document.getElementById('timer-display').textContent = formatTime(STATE.timerSeconds);
+  const display = document.getElementById('timer-display');
+  if (display) display.textContent = formatTime(STATE.timerSeconds);
 }
 
 // ─── GRID BUILDER ─────────────────────────────────────────────────────────────
@@ -419,6 +410,7 @@ function buildGrid() {
       cell.dataset.row = r;
       cell.dataset.col = c;
       cell.setAttribute('tabindex', '0');
+      cell.setAttribute('role', 'gridcell');
       cell.addEventListener('click', () => selectCell(r, c));
       cell.addEventListener('keydown', onCellKeydown);
       grid.appendChild(cell);
@@ -435,27 +427,15 @@ function renderCellContent(r, c) {
   if (!cell) return;
   const val = STATE.board[r][c];
   const isGiven = STATE.given[r][c];
+
   cell.classList.toggle('given', isGiven);
 
   if (val !== 0) {
     cell.textContent = val;
     cell.classList.toggle('wrong-val', !isGiven && val !== STATE.solution[r][c]);
   } else {
+    cell.textContent = '';
     cell.classList.remove('wrong-val');
-    const cellNotes = (STATE.notes && STATE.notes[r] && STATE.notes[r][c]) ? STATE.notes[r][c] : [];
-    if (cellNotes.length > 0) {
-      const selVal = STATE.selectedValue;
-      let html = '<div class="cell-notes">';
-      for (let n = 1; n <= 9; n++) {
-        const has = cellNotes.includes(n);
-        const sameClass = (has && selVal > 0 && selVal === n) ? ' note-same' : '';
-        html += `<span class="note-num${sameClass}">${has ? n : ''}</span>`;
-      }
-      html += '</div>';
-      cell.innerHTML = html;
-    } else {
-      cell.textContent = '';
-    }
   }
 }
 
@@ -469,7 +449,7 @@ function renderBoard() {
   updateNumberExhaustion();
 }
 
-// ─── SELECTION & HIGHLIGHTS ──────────────────────────────────────────────────
+// ─── SELECTION & SPOTLIGHT HIGHLIGHTS ─────────────────────────────────────────
 function selectCell(r, c) {
   if (!STATE.gameActive || STATE.paused) return;
   STATE.selected = { row: r, col: c };
@@ -484,13 +464,9 @@ function updateHighlights() {
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
       const cell = getCell(r, c);
-      // Clear all highlight classes first
-      cell.classList.remove('selected', 'highlight-row', 'highlight-col', 'highlight-box', 'highlight-same');
+      if (!cell) continue;
 
-      // Update candidate note highlights if cell is empty with notes
-      if (STATE.board[r][c] === 0 && STATE.notes && STATE.notes[r][c].length > 0) {
-        renderCellContent(r, c);
-      }
+      cell.classList.remove('selected', 'highlight-row', 'highlight-col', 'highlight-box', 'highlight-same');
 
       if (!sel) continue;
 
@@ -505,7 +481,7 @@ function updateHighlights() {
       if (isSelected) {
         cell.classList.add('selected');
       } else if (isSameValue) {
-        // Same number takes priority over axis highlights
+        // Spotlight mode: highlight identical numbers
         cell.classList.add('highlight-same');
       } else if (inSameRow) {
         cell.classList.add('highlight-row');
@@ -518,105 +494,95 @@ function updateHighlights() {
   }
 }
 
-// ─── NOTES MODE ───────────────────────────────────────────────────────────────
-function updateNotesUI() {
-  const btn = document.getElementById('btn-notes');
-  const label = document.getElementById('notes-state');
-  if (btn && label) {
-    btn.classList.toggle('active', STATE.notesMode);
-    label.textContent = STATE.notesMode ? 'ON' : 'OFF';
-  }
-}
-
-function toggleNotesMode() {
-  if (!STATE.gameActive || STATE.paused) return;
-  STATE.notesMode = !STATE.notesMode;
-  updateNotesUI();
-}
-
-function prunePeerNotes(row, col, num) {
-  const removed = [];
-  const br = Math.floor(row / 3) * 3, bc = Math.floor(col / 3) * 3;
+// ─── NUMBER EXHAUSTION & REMAINING COUNTERS ───────────────────────────────────
+function updateNumberExhaustion() {
+  const counts = Array(10).fill(0);
   for (let r = 0; r < 9; r++) {
     for (let c = 0; c < 9; c++) {
-      if (r === row && c === col) continue;
-      const inPeer = r === row || c === col || (r >= br && r < br + 3 && c >= bc && c < bc + 3);
-      if (inPeer && STATE.notes[r][c].includes(num)) {
-        STATE.notes[r][c] = STATE.notes[r][c].filter(n => n !== num);
-        removed.push({ r, c, num });
-        renderCellContent(r, c);
+      const val = STATE.board[r][c];
+      if (val > 0 && val === STATE.solution[r][c]) {
+        counts[val]++;
       }
     }
   }
-  return removed;
+
+  for (let n = 1; n <= 9; n++) {
+    const placed = counts[n];
+    const remaining = Math.max(0, 9 - placed);
+    const countEl = document.getElementById(`count-${n}`);
+    const btn = document.querySelector(`.num-btn[data-num="${n}"]`);
+
+    if (countEl) {
+      countEl.textContent = remaining === 0 ? '✓' : remaining;
+    }
+    if (btn) {
+      btn.classList.toggle('exhausted', remaining === 0);
+    }
+  }
 }
 
 // ─── NUMBER INPUT ─────────────────────────────────────────────────────────────
 function inputNumber(num) {
   applyNumber(num);
-  saveGame(); // autosave after every move (no-op once the game has ended)
+  saveGame();
 }
 
 function applyNumber(num) {
   if (!STATE.gameActive || STATE.paused) return;
-  if (!STATE.selected) return;
+
+  // If clicking number keypad with no cell selected, simply set Spotlight
+  if (!STATE.selected) {
+    if (num > 0) {
+      STATE.selectedValue = num;
+      updateHighlights();
+    }
+    return;
+  }
+
   const { row, col } = STATE.selected;
-  if (STATE.given[row][col]) return;
+  if (STATE.given[row][col]) {
+    // Tapping a number while a given cell is selected focuses spotlight
+    if (num > 0) {
+      STATE.selectedValue = num;
+      updateHighlights();
+    }
+    return;
+  }
 
   const prev = STATE.board[row][col];
-  const prevNotes = [...STATE.notes[row][col]];
 
+  // Erase cell
   if (num === 0) {
-    // Erase value or notes
     if (prev !== 0) {
-      STATE.history.push({ type: 'val', row, col, prev, next: 0, prevNotes, removedPeerNotes: [] });
+      STATE.history.push({ type: 'val', row, col, prev, next: 0 });
       STATE.board[row][col] = 0;
       STATE.selectedValue = 0;
       renderCellContent(row, col);
       updateHighlights();
       updateNumberExhaustion();
-    } else if (prevNotes.length > 0) {
-      STATE.history.push({ type: 'note', row, col, prevNotes });
-      STATE.notes[row][col] = [];
-      renderCellContent(row, col);
-      updateHighlights();
     }
     return;
   }
 
-  // Notes mode: toggle candidate note on empty cell
-  if (STATE.notesMode) {
-    if (prev !== 0) return; // only annotate empty cells
-    STATE.history.push({ type: 'note', row, col, prevNotes });
-    if (STATE.notes[row][col].includes(num)) {
-      STATE.notes[row][col] = STATE.notes[row][col].filter(n => n !== num);
-    } else {
-      STATE.notes[row][col].push(num);
-      STATE.notes[row][col].sort((a, b) => a - b);
-    }
-    renderCellContent(row, col);
+  // Tapping the same number: focus spotlight
+  if (prev === num) {
+    STATE.selectedValue = num;
     updateHighlights();
     return;
   }
 
-  if (prev === num) return; // same value, no-op
-
   STATE.board[row][col] = num;
-  STATE.notes[row][col] = [];
   STATE.selectedValue = num;
   const cell = getCell(row, col);
 
   const isCorrect = STATE.solution[row][col] === num;
-  const removedPeerNotes = isCorrect ? prunePeerNotes(row, col, num) : [];
 
   STATE.history.push({
     type: 'val',
     row,
     col,
     prev,
-    next: num,
-    prevNotes,
-    removedPeerNotes
+    next: num
   });
 
   renderCellContent(row, col);
@@ -624,14 +590,12 @@ function applyNumber(num) {
   if (isCorrect) {
     cell.classList.add('correct-anim');
     SFX.correct();
-    // Check victory right away (not after the animation) so the game ends
-    // immediately and later inputs can't trigger a second victory.
     checkVictory();
     setTimeout(() => {
       if (cell) cell.classList.remove('correct-anim');
       updateHighlights();
       checkCompletions(row, col);
-    }, 500);
+    }, 450);
   } else {
     cell.classList.add('error-anim');
     SFX.error();
@@ -639,8 +603,9 @@ function applyNumber(num) {
     setTimeout(() => {
       if (cell) cell.classList.remove('error-anim');
       updateHighlights();
-    }, 500);
+    }, 450);
   }
+
   updateHighlights();
   updateNumberExhaustion();
 }
@@ -651,15 +616,14 @@ function registerError(row, col) {
   const heartIdx = STATE.errors - 1;
   if (heartIdx < 3) {
     const heart = document.getElementById(hearts[heartIdx]);
-    heart.classList.add('lost');
-    // shake animation
-    heart.style.animation = 'errorShake 0.4s ease-out';
-    setTimeout(() => { heart.style.animation = ''; }, 400);
+    if (heart) {
+      heart.classList.add('lost');
+      heart.style.animation = 'errorShake 0.4s ease-out';
+      setTimeout(() => { heart.style.animation = ''; }, 400);
+    }
   }
 
   if (STATE.errors >= 3) {
-    // End the game now so extra taps during the delay can't add errors
-    // or trigger Game Over twice.
     STATE.gameActive = false;
     stopTimer();
     clearSavedGame();
@@ -677,9 +641,11 @@ function checkCompletions(row, col) {
   // Check 3x3 box
   const br = Math.floor(row / 3) * 3, bc = Math.floor(col / 3) * 3;
   let boxComplete = true;
-  for (let r = br; r < br + 3; r++)
-    for (let c = bc; c < bc + 3; c++)
+  for (let r = br; r < br + 3; r++) {
+    for (let c = bc; c < bc + 3; c++) {
       if (STATE.board[r][c] !== STATE.solution[r][c]) { boxComplete = false; break; }
+    }
+  }
 
   let completionCount = 0;
   if (rowComplete) {
@@ -705,8 +671,8 @@ function flashLine(type, idx) {
     if (!cell) continue;
     setTimeout(() => {
       cell.classList.add('flash-complete');
-      setTimeout(() => cell.classList.remove('flash-complete'), 400);
-    }, i * 40);
+      setTimeout(() => cell.classList.remove('flash-complete'), 500);
+    }, i * 35);
   }
 }
 
@@ -718,28 +684,11 @@ function flashBox(br, bc) {
       if (!cell) continue;
       setTimeout(() => {
         cell.classList.add('flash-complete');
-        setTimeout(() => cell.classList.remove('flash-complete'), 400);
+        setTimeout(() => cell.classList.remove('flash-complete'), 500);
       }, delay);
       delay += 30;
     }
   }
-}
-
-// ─── NUMBER EXHAUSTION ────────────────────────────────────────────────────────
-function updateNumberExhaustion() {
-  const counts = Array(10).fill(0);
-  for (let r = 0; r < 9; r++)
-    for (let c = 0; c < 9; c++)
-      if (STATE.board[r][c] > 0 && STATE.board[r][c] === STATE.solution[r][c]) {
-        counts[STATE.board[r][c]]++;
-      }
-
-  document.querySelectorAll('.num-btn').forEach(btn => {
-    const n = parseInt(btn.dataset.num);
-    if (n > 0) {
-      btn.classList.toggle('exhausted', counts[n] >= 9);
-    }
-  });
 }
 
 // ─── HINT ─────────────────────────────────────────────────────────────────────
@@ -747,7 +696,7 @@ function useHint() {
   if (!STATE.gameActive || STATE.paused) return;
   if (STATE.hintsLeft <= 0) return;
 
-  // Pick the selected cell if it needs solving, otherwise a random empty/wrong cell
+  // Pick selected cell if it's empty or wrong, otherwise pick a random empty cell
   let target = null;
   if (
     STATE.selected &&
@@ -768,12 +717,9 @@ function useHint() {
 
   const [row, col] = target;
   const prev = STATE.board[row][col];
-  const prevNotes = [...STATE.notes[row][col]];
   const correctVal = STATE.solution[row][col];
 
   STATE.board[row][col] = correctVal;
-  STATE.notes[row][col] = [];
-  const removedPeerNotes = prunePeerNotes(row, col, correctVal);
 
   STATE.history.push({
     type: 'val',
@@ -781,23 +727,22 @@ function useHint() {
     col,
     prev,
     next: correctVal,
-    prevNotes,
-    removedPeerNotes,
     isHint: true
   });
 
   renderCellContent(row, col);
   const cell = getCell(row, col);
-  cell.classList.add('hint-cell');
-  setTimeout(() => cell.classList.remove('hint-cell'), 1000);
+  if (cell) {
+    cell.classList.add('hint-cell');
+    setTimeout(() => cell.classList.remove('hint-cell'), 1000);
+  }
 
   STATE.hintsLeft--;
   STATE.hintsUsed++;
   document.getElementById('hints-left').textContent = STATE.hintsLeft;
 
-  // Mark hint icon as used
   const hintIds = ['hint1', 'hint2'];
-  const usedIdx = 1 - STATE.hintsLeft; // 0 or 1
+  const usedIdx = 1 - STATE.hintsLeft;
   const hintEl = document.getElementById(hintIds[usedIdx]);
   if (hintEl) hintEl.classList.add('used');
 
@@ -818,28 +763,7 @@ function undoAction() {
   if (!STATE.gameActive || STATE.paused || STATE.history.length === 0) return;
   const last = STATE.history.pop();
 
-  if (last.type === 'note') {
-    STATE.notes[last.row][last.col] = [...last.prevNotes];
-    renderCellContent(last.row, last.col);
-    SFX.undo();
-    selectCell(last.row, last.col);
-    saveGame();
-    return;
-  }
-
   STATE.board[last.row][last.col] = last.prev;
-  if (last.prevNotes) {
-    STATE.notes[last.row][last.col] = [...last.prevNotes];
-  }
-  if (last.removedPeerNotes && last.removedPeerNotes.length > 0) {
-    for (const item of last.removedPeerNotes) {
-      if (!STATE.notes[item.r][item.c].includes(item.num)) {
-        STATE.notes[item.r][item.c].push(item.num);
-        STATE.notes[item.r][item.c].sort((a, b) => a - b);
-        renderCellContent(item.r, item.c);
-      }
-    }
-  }
   renderCellContent(last.row, last.col);
   SFX.undo();
   selectCell(last.row, last.col);
@@ -849,19 +773,18 @@ function undoAction() {
 
 // ─── VICTORY / GAME OVER ─────────────────────────────────────────────────────
 function checkVictory() {
-  if (!STATE.gameActive) return false; // already won/lost: never fire twice
+  if (!STATE.gameActive) return false;
   for (let r = 0; r < 9; r++)
     for (let c = 0; c < 9; c++)
       if (STATE.board[r][c] !== STATE.solution[r][c]) return false;
 
-  // All cells correct!
   stopTimer();
   STATE.gameActive = false;
   clearSavedGame();
 
   setTimeout(() => {
     triggerVictory();
-  }, 600);
+  }, 500);
   return true;
 }
 
@@ -930,13 +853,13 @@ function renderScores() {
   const scores = loadScores();
   const tbody = document.getElementById('scores-body');
   if (scores.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="no-scores">Sin partidas aún</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="no-scores">Sin partidas registradas</td></tr>';
     return;
   }
   tbody.innerHTML = scores.map((s, i) =>
     `<tr>
       <td>${i + 1}</td>
-      <td>${s.difficulty}</td>
+      <td><span class="diff-tag diff-${s.difficulty.toLowerCase()}">${s.difficulty}</span></td>
       <td>${s.time}</td>
       <td>${s.errors}</td>
       <td class="score-pts">${s.score ?? 0}</td>
@@ -948,18 +871,14 @@ function renderScores() {
 function startGame(difficulty = STATE.difficulty) {
   STATE.difficulty = difficulty;
 
-  // Clear any saved game when starting fresh
   clearSavedGame();
   updateContinueButton();
 
-  // Generate puzzle client-side (immediate, no server needed)
   const { puzzle, solution } = generatePuzzle(difficulty);
   STATE.puzzle = puzzle;
   STATE.solution = solution;
   STATE.board = puzzle.map(r => [...r]);
   STATE.given = puzzle.map(r => r.map(v => v !== 0));
-  STATE.notes = createEmptyNotes();
-  STATE.notesMode = false;
   STATE.selected = null;
   STATE.selectedValue = 0;
   STATE.errors = 0;
@@ -973,17 +892,18 @@ function startGame(difficulty = STATE.difficulty) {
   // Reset UI
   ['heart1','heart2','heart3'].forEach(id => {
     const el = document.getElementById(id);
-    el.classList.remove('lost');
-    el.style.animation = '';
+    if (el) {
+      el.classList.remove('lost');
+      el.style.animation = '';
+    }
   });
   ['hint1','hint2'].forEach(id => {
     const el = document.getElementById(id);
-    el.classList.remove('used');
+    if (el) el.classList.remove('used');
   });
   document.getElementById('hints-left').textContent = 2;
   document.getElementById('btn-hint').disabled = false;
   document.getElementById('game-diff-badge').textContent = diffLabel(difficulty);
-  updateNotesUI();
 
   hideOverlays();
   buildGrid();
@@ -991,7 +911,7 @@ function startGame(difficulty = STATE.difficulty) {
   showScreen('screen-game');
   startTimer();
   updateTimerDisplay();
-  saveGame(); // a brand-new puzzle is recoverable even before the first move
+  saveGame();
 }
 
 // ─── KEYBOARD INPUT ───────────────────────────────────────────────────────────
@@ -1029,14 +949,13 @@ document.addEventListener('keydown', (e) => {
     } else if (STATE.gameActive) {
       pauseGame();
     }
-  } else if ((e.key === 'n' || e.key === 'N') && STATE.gameActive && !STATE.paused) {
+  } else if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) {
     e.preventDefault();
-    SFX.click();
-    toggleNotesMode();
+    undoAction();
   }
 });
 
-// ─── PAUSE ────────────────────────────────────────────────────────────────────
+// ─── PAUSE & RESUME ───────────────────────────────────────────────────────────
 function pauseGame({ silent = false } = {}) {
   if (!STATE.gameActive) return;
   STATE.paused = true;
@@ -1050,9 +969,7 @@ function resumeGame() {
   hideOverlays();
 }
 
-// ─── BACKGROUND HANDLING (iPhone web app) ─────────────────────────────────────
-// When Diana switches apps or locks the phone: stop the clock and save,
-// because iOS may kill the web app while it is in the background.
+// ─── BACKGROUND HANDLING ──────────────────────────────────────────────────────
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden' && STATE.gameActive && !STATE.paused) {
     pauseGame({ silent: true });
@@ -1060,12 +977,21 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide', () => saveGame());
 
-// ─── DIFFICULTY INFO ──────────────────────────────────────────────────────────
-const diffInfoText = {
-  easy: '36 celdas vacías • 2 pistas disponibles',
-  medium: '46 celdas vacías • 2 pistas disponibles',
-  hard: '56 celdas vacías • 2 pistas disponibles',
+// ─── DIFFICULTY METADATA ──────────────────────────────────────────────────────
+const diffDescriptions = {
+  easy: 'Tranquilo • 36 casillas vacías • 2 pistas',
+  medium: 'Equilibrado • 46 casillas vacías • 2 pistas',
+  hard: 'Desafiante • 56 casillas vacías • 2 pistas',
 };
+
+function selectDifficulty(diff) {
+  STATE.difficulty = diff;
+  document.querySelectorAll('.diff-chip').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.diff === diff);
+  });
+  const descEl = document.getElementById('diff-desc');
+  if (descEl) descEl.textContent = diffDescriptions[diff] || '';
+}
 
 // ─── EVENT LISTENERS ──────────────────────────────────────────────────────────
 function attachSoundToBtn(btn) {
@@ -1075,19 +1001,26 @@ function attachSoundToBtn(btn) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // ── Theme init & toggle
+  // Theme init & toggle
   THEME.init();
   document.getElementById('btn-theme').addEventListener('click', () => {
     THEME.toggle();
   });
 
-  // Attach sounds to all buttons
+  // Attach sounds to all buttons with data-sound
   document.querySelectorAll('[data-sound]').forEach(attachSoundToBtn);
 
-  // ── Check for saved game on load
+  // Check for saved game on load
   updateContinueButton();
 
-  // ── Menu buttons
+  // Menu Difficulty Segmented Control
+  document.querySelectorAll('.diff-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      selectDifficulty(chip.dataset.diff);
+    });
+  });
+
+  // Menu Buttons
   document.getElementById('btn-continue').addEventListener('click', () => {
     loadSavedGame();
   });
@@ -1096,74 +1029,48 @@ document.addEventListener('DOMContentLoaded', () => {
     startGame(STATE.difficulty);
   });
 
-  document.getElementById('btn-difficulty').addEventListener('click', () => {
-    showScreen('screen-difficulty');
-    const diffBtns = document.querySelectorAll('.diff-btn');
-    diffBtns.forEach(b => b.classList.toggle('active-diff', b.dataset.diff === STATE.difficulty));
-    document.getElementById('diff-info-text').textContent = diffInfoText[STATE.difficulty];
-  });
-
   document.getElementById('btn-scores').addEventListener('click', () => {
     renderScores();
     showScreen('screen-scores');
-  });
-
-  document.getElementById('btn-exit').addEventListener('click', () => {
-    SFX.back();
-    setTimeout(() => {
-      window.close();
-      // Fallback: show message
-      alert('Cierra esta ventana para salir.');
-    }, 200);
-  });
-
-  // ── Difficulty buttons
-  document.querySelectorAll('.diff-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      STATE.difficulty = btn.dataset.diff;
-      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active-diff'));
-      btn.classList.add('active-diff');
-      document.getElementById('diff-info-text').textContent = diffInfoText[btn.dataset.diff];
-      document.getElementById('diff-display').textContent = diffLabel(btn.dataset.diff);
-    });
-  });
-
-  document.getElementById('btn-diff-back').addEventListener('click', () => {
-    showScreen('screen-menu');
   });
 
   document.getElementById('btn-scores-back').addEventListener('click', () => {
     showScreen('screen-menu');
   });
 
-  // ── Game buttons
+  // In-Game Topbar Buttons
+  document.getElementById('btn-game-back').addEventListener('click', () => {
+    pauseGame();
+  });
+
   document.getElementById('btn-pause').addEventListener('click', () => {
     pauseGame();
   });
 
+  // In-Game Tool Buttons
   document.getElementById('btn-undo').addEventListener('click', () => {
     undoAction();
   });
 
-  document.getElementById('btn-notes').addEventListener('click', () => {
-    toggleNotesMode();
+  document.getElementById('btn-erase').addEventListener('click', () => {
+    SFX.erase();
+    inputNumber(0);
   });
 
   document.getElementById('btn-hint').addEventListener('click', () => {
     useHint();
   });
 
-  // ── Number panel
+  // Number Keypad
   document.querySelectorAll('.num-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const n = parseInt(btn.dataset.num);
-      if (n === 0) { SFX.erase(); }
-      else { SFX.click(); }
+      SFX.click();
       inputNumber(n);
     });
   });
 
-  // ── Pause overlay
+  // Overlays
   document.getElementById('btn-resume').addEventListener('click', () => {
     resumeGame();
   });
@@ -1183,7 +1090,6 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('screen-menu');
   });
 
-  // ── Victory overlay
   document.getElementById('btn-play-again').addEventListener('click', () => {
     startGame(STATE.difficulty);
   });
@@ -1194,7 +1100,6 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('screen-menu');
   });
 
-  // ── Game Over overlay
   document.getElementById('btn-retry').addEventListener('click', () => {
     startGame(STATE.difficulty);
   });
@@ -1205,22 +1110,18 @@ document.addEventListener('DOMContentLoaded', () => {
     showScreen('screen-menu');
   });
 
-  // ── Initialize display
-  document.getElementById('diff-display').textContent = diffLabel(STATE.difficulty);
   showVersion();
 });
 
-// ─── VERSION ──────────────────────────────────────────────────────────────────
-// APP_VERSION / APP_BUILD_DATE come from version.js (generated from package.json).
+// ─── VERSION DISPLAY ──────────────────────────────────────────────────────────
 function showVersion() {
-  const version = self.APP_VERSION || '?';
+  const version = self.APP_VERSION || '1.1.0';
   const date = self.APP_BUILD_DATE || '';
   const badge = document.getElementById('version-badge');
   if (badge) {
-    badge.textContent = `VERSIÓN ${version}`;
-    badge.title = date ? `Publicada el ${date}` : '';
+    badge.textContent = `v${version}`;
+    badge.title = date ? `Actualizado: ${date}` : '';
   }
   const pause = document.getElementById('pause-version');
-  if (pause) pause.textContent = `Diana's Sudoku v${version}${date ? ' • ' + date : ''}`;
-  console.info(`Diana's Sudoku v${version} (${date})`);
+  if (pause) pause.textContent = `Diana's Sudoku v${version}`;
 }
