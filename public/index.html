@@ -63,6 +63,7 @@
       <div class="menu-footer">
         <span id="selected-diff-label">Dificultad: <span id="diff-display">MEDIO</span></span>
       </div>
+      <div class="version-badge" id="version-badge" title="Versión instalada">v—</div>
     </div>
   </div>
 
@@ -87,10 +88,10 @@
       <div class="scores-table-wrap">
         <table class="scores-table">
           <thead>
-            <tr><th>#</th><th>DIFICULTAD</th><th>TIEMPO</th><th>ERRORES</th></tr>
+            <tr><th>#</th><th>DIFICULTAD</th><th>TIEMPO</th><th>ERR</th><th>PUNTOS</th></tr>
           </thead>
           <tbody id="scores-body">
-            <tr><td colspan="4" class="no-scores">Sin partidas aún</td></tr>
+            <tr><td colspan="5" class="no-scores">Sin partidas aún</td></tr>
           </tbody>
         </table>
       </div>
@@ -161,6 +162,7 @@
       <button class="menu-btn" id="btn-resume" data-sound="select">▶ CONTINUAR</button>
       <button class="menu-btn" id="btn-restart" data-sound="select">↺ REINICIAR</button>
       <button class="menu-btn save-menu-btn" id="btn-menu-from-pause" data-sound="back">💾 GUARDAR Y SALIR</button>
+      <div class="pause-version" id="pause-version">v—</div>
     </div>
   </div>
 
@@ -199,6 +201,7 @@
     </div>
   </div>
 
+  <script src="version.js"></script>
   <script src="game.js"></script>
 </body>
 </html>

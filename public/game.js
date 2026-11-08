@@ -385,6 +385,8 @@ function startTimer() {
     if (!STATE.paused) {
       STATE.timerSeconds++;
       updateTimerDisplay();
+      // Persist elapsed time periodically so a killed web app loses at most a few seconds.
+      if (STATE.timerSeconds % 5 === 0) saveGame();
     }
   }, 1000);
 }
@@ -551,6 +553,11 @@ function prunePeerNotes(row, col, num) {
 
 // ─── NUMBER INPUT ─────────────────────────────────────────────────────────────
 function inputNumber(num) {
+  applyNumber(num);
+  saveGame(); // autosave after every move (no-op once the game has ended)
+}
+
+function applyNumber(num) {
   if (!STATE.gameActive || STATE.paused) return;
   if (!STATE.selected) return;
   const { row, col } = STATE.selected;
@@ -617,11 +624,13 @@ function inputNumber(num) {
   if (isCorrect) {
     cell.classList.add('correct-anim');
     SFX.correct();
+    // Check victory right away (not after the animation) so the game ends
+    // immediately and later inputs can't trigger a second victory.
+    checkVictory();
     setTimeout(() => {
       if (cell) cell.classList.remove('correct-anim');
       updateHighlights();
       checkCompletions(row, col);
-      checkVictory();
     }, 500);
   } else {
     cell.classList.add('error-anim');
@@ -649,6 +658,11 @@ function registerError(row, col) {
   }
 
   if (STATE.errors >= 3) {
+    // End the game now so extra taps during the delay can't add errors
+    // or trigger Game Over twice.
+    STATE.gameActive = false;
+    stopTimer();
+    clearSavedGame();
     setTimeout(() => triggerGameOver(), 600);
   }
 }
@@ -796,6 +810,7 @@ function useHint() {
   updateNumberExhaustion();
   checkCompletions(row, col);
   checkVictory();
+  saveGame();
 }
 
 // ─── UNDO ─────────────────────────────────────────────────────────────────────
@@ -808,6 +823,7 @@ function undoAction() {
     renderCellContent(last.row, last.col);
     SFX.undo();
     selectCell(last.row, last.col);
+    saveGame();
     return;
   }
 
@@ -828,21 +844,25 @@ function undoAction() {
   SFX.undo();
   selectCell(last.row, last.col);
   updateNumberExhaustion();
+  saveGame();
 }
 
 // ─── VICTORY / GAME OVER ─────────────────────────────────────────────────────
 function checkVictory() {
+  if (!STATE.gameActive) return false; // already won/lost: never fire twice
   for (let r = 0; r < 9; r++)
     for (let c = 0; c < 9; c++)
-      if (STATE.board[r][c] !== STATE.solution[r][c]) return;
+      if (STATE.board[r][c] !== STATE.solution[r][c]) return false;
 
   // All cells correct!
   stopTimer();
   STATE.gameActive = false;
+  clearSavedGame();
 
   setTimeout(() => {
     triggerVictory();
   }, 600);
+  return true;
 }
 
 function calcScore() {
@@ -873,9 +893,6 @@ function triggerVictory() {
 
 function triggerGameOver() {
   SFX.gameOver();
-  stopTimer();
-  STATE.gameActive = false;
-  clearSavedGame();
   updateContinueButton();
 
   document.getElementById('go-time').textContent = formatTime(STATE.timerSeconds);
@@ -913,7 +930,7 @@ function renderScores() {
   const scores = loadScores();
   const tbody = document.getElementById('scores-body');
   if (scores.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" class="no-scores">Sin partidas aún</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="no-scores">Sin partidas aún</td></tr>';
     return;
   }
   tbody.innerHTML = scores.map((s, i) =>
@@ -922,6 +939,7 @@ function renderScores() {
       <td>${s.difficulty}</td>
       <td>${s.time}</td>
       <td>${s.errors}</td>
+      <td class="score-pts">${s.score ?? 0}</td>
     </tr>`
   ).join('');
 }
@@ -973,6 +991,7 @@ function startGame(difficulty = STATE.difficulty) {
   showScreen('screen-game');
   startTimer();
   updateTimerDisplay();
+  saveGame(); // a brand-new puzzle is recoverable even before the first move
 }
 
 // ─── KEYBOARD INPUT ───────────────────────────────────────────────────────────
@@ -1018,17 +1037,28 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ─── PAUSE ────────────────────────────────────────────────────────────────────
-function pauseGame() {
+function pauseGame({ silent = false } = {}) {
   if (!STATE.gameActive) return;
   STATE.paused = true;
-  SFX.pause();
+  if (!silent) SFX.pause();
   showOverlay('overlay-pause');
+  saveGame();
 }
 
 function resumeGame() {
   STATE.paused = false;
   hideOverlays();
 }
+
+// ─── BACKGROUND HANDLING (iPhone web app) ─────────────────────────────────────
+// When Diana switches apps or locks the phone: stop the clock and save,
+// because iOS may kill the web app while it is in the background.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && STATE.gameActive && !STATE.paused) {
+    pauseGame({ silent: true });
+  }
+});
+window.addEventListener('pagehide', () => saveGame());
 
 // ─── DIFFICULTY INFO ──────────────────────────────────────────────────────────
 const diffInfoText = {
@@ -1177,4 +1207,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Initialize display
   document.getElementById('diff-display').textContent = diffLabel(STATE.difficulty);
+  showVersion();
 });
+
+// ─── VERSION ──────────────────────────────────────────────────────────────────
+// APP_VERSION / APP_BUILD_DATE come from version.js (generated from package.json).
+function showVersion() {
+  const version = self.APP_VERSION || '?';
+  const date = self.APP_BUILD_DATE || '';
+  const badge = document.getElementById('version-badge');
+  if (badge) {
+    badge.textContent = `VERSIÓN ${version}`;
+    badge.title = date ? `Publicada el ${date}` : '';
+  }
+  const pause = document.getElementById('pause-version');
+  if (pause) pause.textContent = `Diana's Sudoku v${version}${date ? ' • ' + date : ''}`;
+  console.info(`Diana's Sudoku v${version} (${date})`);
+}

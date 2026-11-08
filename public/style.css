@@ -470,6 +470,44 @@ body {
   padding: 1.5rem !important;
 }
 
+.scores-table th,
+.scores-table td {
+  white-space: nowrap;
+  padding-left: 0.45rem;
+  padding-right: 0.45rem;
+}
+
+.scores-table .score-pts {
+  color: var(--accent-gold);
+  text-align: right;
+}
+
+.scores-table th:last-child {
+  text-align: right;
+}
+
+/* ── VERSION BADGE ── */
+.version-badge {
+  margin-top: 0.75rem;
+  font-family: var(--pixel-font);
+  font-size: 0.5rem;
+  letter-spacing: 2px;
+  color: var(--accent2);
+  border: 2px solid var(--accent2);
+  padding: 0.45rem 0.7rem;
+  opacity: 0.85;
+  transition: color 0.3s, border-color 0.3s;
+}
+
+.pause-version {
+  margin-top: 0.75rem;
+  font-family: var(--vt-font);
+  font-size: 1.05rem;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-align: center;
+}
+
 /* ── GAME SCREEN ── */
 .game-wrapper {
   display: flex;

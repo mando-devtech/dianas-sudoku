@@ -1,0 +1,26 @@
+# Deploys are done with the Netlify CLI (see README). No build step: static files only.
+[build]
+  publish = "public"
+
+# Always revalidate the app shell so Diana's iPhone picks up new versions
+# on the next launch instead of serving a stale copy.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/version.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache"
+

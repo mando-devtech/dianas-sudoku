@@ -2,12 +2,16 @@
    Diana's Sudoku - Service Worker (PWA)
    ═══════════════════════════════════════════════ */
 
-const CACHE_NAME = 'dianas-sudoku-v3';
+// Kept in sync with package.json by scripts/sync-version.mjs.
+// Changing it renames the cache, so each release drops the previous offline copy.
+const APP_VERSION = '1.1.0';
+const CACHE_NAME = `dianas-sudoku-v${APP_VERSION}`;
 const ASSETS = [
   '/',
   '/index.html',
   '/style.css',
   '/game.js',
+  '/version.js',
   '/manifest.json',
   '/apple-touch-icon.png',
   'https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap'

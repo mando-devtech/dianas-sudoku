@@ -12,8 +12,9 @@ import socket
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import os
 
-# Change to the directory containing this script
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+# Serve the same folder Netlify publishes
+PUBLIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public')
+os.chdir(PUBLIC_DIR)
 
 # Add PWA / modern MIME types
 import mimetypes
@@ -36,7 +37,7 @@ def get_local_ip():
 
 class SudokuHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory=os.path.dirname(os.path.abspath(__file__)), **kwargs)
+        super().__init__(*args, directory=PUBLIC_DIR, **kwargs)
 
     def do_GET(self):
         if self.path == '/api/generate':

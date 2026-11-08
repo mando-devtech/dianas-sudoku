@@ -1,0 +1,6 @@
+# Normalize line endings so local files and the Netlify deploy are byte-identical.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+

@@ -1,0 +1,20 @@
+{
+  "name": "dianas-sudoku",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Sudoku estilo 8-bit para Diana (web app / PWA)",
+  "type": "module",
+  "scripts": {
+    "serve": "python server.py",
+    "sync-version": "node scripts/sync-version.mjs",
+    "version": "node scripts/sync-version.mjs && git add public/version.js public/sw.js",
+    "release:patch": "npm version patch -m \"release: v%s\"",
+    "release:minor": "npm version minor -m \"release: v%s\"",
+    "release:major": "npm version major -m \"release: v%s\"",
+    "deploy:preview": "netlify deploy --dir=public",
+    "deploy:prod": "node scripts/deploy.mjs"
+  },
+  "devDependencies": {
+    "netlify-cli": "^27.16.2"
+  }
+}
