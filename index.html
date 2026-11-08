@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Sudoku" />
+  <meta name="theme-color" content="#0f1117" id="meta-theme-color" />
+  <meta name="description" content="Juego de Sudoku estilo 8-bit por Diana. Disfruta en tu celular como una app." />
+
+  <title>Diana's Sudoku</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Apple Touch Icon (iPhone home screen) -->
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ── THEME TOGGLE BUTTON ── -->
+  <button id="btn-theme" class="theme-toggle" title="Cambiar tema" aria-label="Cambiar modo oscuro/claro">
+    <span class="theme-icon" id="theme-icon">💡</span>
+  </button>
+
+  <!-- ── SCREENS ── -->
+
+  <!-- MAIN MENU -->
+  <div id="screen-menu" class="screen active">
+    <div class="menu-container">
+      <div class="title-block">
+        <div class="pixel-logo">
+          <span class="logo-main">SUDOKU</span>
+          <span class="logo-sub">Diana's Edition</span>
+        </div>
+        <div class="pixel-deco">
+          <div class="deco-row">
+            <span class="deco-cell filled"></span>
+            <span class="deco-cell"></span>
+            <span class="deco-cell filled"></span>
+            <span class="deco-cell"></span>
+            <span class="deco-cell filled"></span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="menu-nav" id="main-menu-nav">
+        <button class="menu-btn continue-btn hidden" id="btn-continue" data-sound="select">⏵ CONTINUAR PARTIDA</button>
+        <button class="menu-btn" id="btn-start" data-sound="select">▶ NUEVA PARTIDA</button>
+        <button class="menu-btn" id="btn-difficulty" data-sound="select">⚙ DIFICULTAD</button>
+        <button class="menu-btn" id="btn-scores" data-sound="select">🏆 PUNTAJES</button>
+        <button class="menu-btn" id="btn-exit" data-sound="select">✖ SALIR</button>
+      </nav>
+
+      <div class="menu-footer">
+        <span id="selected-diff-label">Dificultad: <span id="diff-display">MEDIO</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIFFICULTY SELECT -->
+  <div id="screen-difficulty" class="screen">
+    <div class="menu-container">
+      <h2 class="screen-title">DIFICULTAD</h2>
+      <nav class="menu-nav">
+        <button class="menu-btn diff-btn active-diff" id="diff-easy" data-diff="easy" data-sound="select">🟢 FÁCIL</button>
+        <button class="menu-btn diff-btn" id="diff-medium" data-diff="medium" data-sound="select">🟡 MEDIO</button>
+        <button class="menu-btn diff-btn" id="diff-hard" data-diff="hard" data-sound="select">🔴 DIFÍCIL</button>
+        <button class="menu-btn back-btn" id="btn-diff-back" data-sound="back">← VOLVER</button>
+      </nav>
+      <div class="diff-info" id="diff-info-text">36 celdas vacías • 2 pistas disponibles</div>
+    </div>
+  </div>
+
+  <!-- SCORES SCREEN -->
+  <div id="screen-scores" class="screen">
+    <div class="menu-container">
+      <h2 class="screen-title">🏆 PUNTAJES</h2>
+      <div class="scores-table-wrap">
+        <table class="scores-table">
+          <thead>
+            <tr><th>#</th><th>DIFICULTAD</th><th>TIEMPO</th><th>ERRORES</th></tr>
+          </thead>
+          <tbody id="scores-body">
+            <tr><td colspan="4" class="no-scores">Sin partidas aún</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="menu-btn back-btn" id="btn-scores-back" data-sound="back" style="margin-top:1.5rem;">← VOLVER</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="screen-game" class="screen">
+    <div class="game-wrapper">
+
+      <!-- TOP BAR -->
+      <div class="game-topbar">
+        <div class="topbar-left">
+          <button class="icon-btn" id="btn-pause" title="Pausa" data-sound="click">⏸</button>
+          <button class="icon-btn" id="btn-undo" title="Deshacer" data-sound="click">↩</button>
+        </div>
+        <div class="topbar-center">
+          <div class="timer-display" id="timer-display">00:00</div>
+        </div>
+        <div class="topbar-right">
+          <div class="hints-display">
+            <span class="hint-icon" id="hint1">💡</span>
+            <span class="hint-icon" id="hint2">💡</span>
+          </div>
+          <div class="errors-display">
+            <span class="heart" id="heart1">❤️</span>
+            <span class="heart" id="heart2">❤️</span>
+            <span class="heart" id="heart3">❤️</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIFFICULTY BADGE -->
+      <div class="diff-badge" id="game-diff-badge">MEDIO</div>
+
+      <!-- SUDOKU GRID -->
+      <div class="grid-container">
+        <div class="sudoku-grid" id="sudoku-grid"></div>
+      </div>
+
+      <!-- NUMBER PANEL -->
+      <div class="number-panel" id="number-panel">
+        <button class="num-btn" data-num="1">1</button>
+        <button class="num-btn" data-num="2">2</button>
+        <button class="num-btn" data-num="3">3</button>
+        <button class="num-btn" data-num="4">4</button>
+        <button class="num-btn" data-num="5">5</button>
+        <button class="num-btn" data-num="6">6</button>
+        <button class="num-btn" data-num="7">7</button>
+        <button class="num-btn" data-num="8">8</button>
+        <button class="num-btn" data-num="9">9</button>
+        <button class="num-btn erase-btn" data-num="0">⌫</button>
+      </div>
+
+      <!-- ACTION ROW: NOTES & HINT -->
+      <div class="action-row">
+        <button class="notes-btn" id="btn-notes" title="Modo Notas (Tecla N)" data-sound="click">✏️ NOTAS: <span id="notes-state">OFF</span></button>
+        <button class="hint-btn" id="btn-hint" data-sound="hint">💡 PISTA (<span id="hints-left">2</span>)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAUSE OVERLAY -->
+  <div id="overlay-pause" class="overlay hidden">
+    <div class="overlay-box">
+      <h2 class="overlay-title pixel">⏸ PAUSA</h2>
+      <button class="menu-btn" id="btn-resume" data-sound="select">▶ CONTINUAR</button>
+      <button class="menu-btn" id="btn-restart" data-sound="select">↺ REINICIAR</button>
+      <button class="menu-btn save-menu-btn" id="btn-menu-from-pause" data-sound="back">💾 GUARDAR Y SALIR</button>
+    </div>
+  </div>
+
+  <!-- VICTORY OVERLAY -->
+  <div id="overlay-victory" class="overlay hidden">
+    <div class="overlay-box victory-box">
+      <div class="victory-stars" id="victory-stars">⭐⭐⭐</div>
+      <h2 class="overlay-title pixel">¡COMPLETADO!</h2>
+      <div class="summary-grid">
+        <div class="summary-item"><span class="sum-label">TIEMPO</span><span class="sum-value" id="v-time">--:--</span></div>
+        <div class="summary-item"><span class="sum-label">DIFICULTAD</span><span class="sum-value" id="v-diff">--</span></div>
+        <div class="summary-item"><span class="sum-label">ERRORES</span><span class="sum-value" id="v-errors">0</span></div>
+        <div class="summary-item"><span class="sum-label">PISTAS</span><span class="sum-value" id="v-hints">0</span></div>
+        <div class="summary-item"><span class="sum-label">PUNTOS</span><span class="sum-value" id="v-score">0</span></div>
+      </div>
+      <button class="menu-btn" id="btn-play-again" data-sound="select">▶ JUGAR NUEVO</button>
+      <button class="menu-btn" id="btn-menu-victory" data-sound="back">⌂ MENÚ</button>
+    </div>
+  </div>
+
+  <!-- GAME OVER OVERLAY -->
+  <div id="overlay-gameover" class="overlay hidden">
+    <div class="overlay-box gameover-box">
+      <div class="go-pixel-art">
+        <div class="go-skull">💀</div>
+      </div>
+      <h2 class="overlay-title pixel red-text">GAME OVER</h2>
+      <p class="go-subtitle">3 errores cometidos</p>
+      <div class="summary-grid">
+        <div class="summary-item"><span class="sum-label">TIEMPO</span><span class="sum-value" id="go-time">--:--</span></div>
+        <div class="summary-item"><span class="sum-label">DIFICULTAD</span><span class="sum-value" id="go-diff">--</span></div>
+        <div class="summary-item"><span class="sum-label">ERRORES</span><span class="sum-value" id="go-errors">3</span></div>
+      </div>
+      <button class="menu-btn" id="btn-retry" data-sound="select">↺ REINTENTAR</button>
+      <button class="menu-btn" id="btn-menu-gameover" data-sound="back">⌂ MENÚ</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
