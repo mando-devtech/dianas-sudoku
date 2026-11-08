@@ -4,7 +4,7 @@
 
 // Kept in sync with package.json by scripts/sync-version.mjs.
 // Changing it renames the cache, so each release drops the previous offline copy.
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.2.0';
 const CACHE_NAME = `dianas-sudoku-v${APP_VERSION}`;
 const ASSETS = [
   '/',
